@@ -7,9 +7,11 @@ namespace VoxelTerrain
     [RequireComponent(typeof(MeshCollider))]
     public class Chunk : MonoBehaviour
     {
-        private Block[,,] _blocks;
+        private Block[, ,] _blocks = new Block[chunkSize, chunkSize, chunkSize];
         public static int chunkSize = 16;
         public bool update = true;
+        public World world;
+        public WorldPos pos;
 
         private MeshFilter _filter;
         private MeshCollider _coll;
@@ -19,32 +21,46 @@ namespace VoxelTerrain
         {
             _filter = gameObject.GetComponent<MeshFilter>();
             _coll = gameObject.GetComponent<MeshCollider>();
-            
-            // Past here is just to set up an example chunk
-            _blocks = new Block[chunkSize, chunkSize, chunkSize];
-            for (int x = 0; x < chunkSize; x++)
-            {
-                for (int y = 0; y < chunkSize; y++)
-                {
-                    for (int z = 0; z < chunkSize; z++)
-                    {
-                        _blocks[x, y, z] = new BlockAir();
-                    }
-                }
-            }
-            _blocks[3, 5, 2] = new Block();
-            _blocks[4, 5, 2] = new BlockGrass();
-            UpdateChunk();
         }
 
         // Update is called once per frame
         void Update()
         {
+            if (update)
+            {
+                update = false;
+                UpdateChunk();
+            }
         }
 
         public Block GetBlock(int x, int y, int z)
         {
-            return _blocks[x, y, z];
+            if (InRange(x) && InRange(y) && InRange(z))
+            {
+                return _blocks[x, y, z];
+            }
+            return world.GetBlock(pos.x + x, pos.y + y, pos.z + z);
+        }
+
+        public static bool InRange(int index)
+        {
+            if (index < 0 || index >= chunkSize)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void SetBlock(int x, int y, int z, Block block)
+        {
+            if (InRange(x) && InRange(y) && InRange(z))
+            {
+                _blocks[x, y, z] = block;
+            }
+            else
+            {
+                world.SetBlock(pos.x + x, pos.y + y, pos.z + z, block);
+            }
         }
 
         // Updates the chunk based on its contents

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace VoxelTerrain
 {
     public class BlockGrass : Block
