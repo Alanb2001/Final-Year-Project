@@ -2,6 +2,7 @@ using System;
 
 namespace VoxelTerrain
 {
+    [Serializable]
     public struct WorldPos
     {
         public int x, y, z;

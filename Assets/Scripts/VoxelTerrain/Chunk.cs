@@ -33,6 +33,14 @@ namespace VoxelTerrain
             }
         }
 
+        public void SetBlocksUnmodified()
+        {
+            foreach (Block block in _blocks)
+            {
+                block.changed = false;
+            }
+        }
+        
         public Block GetBlock(int x, int y, int z)
         {
             if (InRange(x) && InRange(y) && InRange(z))

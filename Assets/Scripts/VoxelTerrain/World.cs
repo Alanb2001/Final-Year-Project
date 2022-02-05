@@ -66,12 +66,6 @@ namespace VoxelTerrain
             
             // Add it to the chunks dictionary with the position as the key
             chunks.Add(worldPos, newChunk);
-
-            bool loaded = Serialisation.Load(newChunk);
-            if (loaded)
-            {
-                return;
-            }
             
             for (int xi = 0; xi < 16; xi++)
             {
@@ -90,6 +84,9 @@ namespace VoxelTerrain
                     }   
                 }
             }
+            
+            newChunk.SetBlocksUnmodified();
+            Serialisation.Load(newChunk);
         }
 
         public void DestroyChunk(int x, int y, int z)

@@ -8,6 +8,8 @@ namespace VoxelTerrain
     {
         private const float tileSize = 0.25f;
 
+        public bool changed = true;
+
         public virtual Vector2[] FaceUVs(Direction direction)
         {
             Vector2[] UVs = new Vector2[4];
