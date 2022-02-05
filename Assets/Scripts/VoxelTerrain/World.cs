@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -7,7 +8,14 @@ namespace VoxelTerrain
     {
         public Dictionary<WorldPos, Chunk> chunks = new Dictionary<WorldPos, Chunk>();
         public GameObject chunkPrefab;
+        public string worldName = "world";
 
+        public int newChunkX;
+        public int newChunkY;
+        public int newChunkZ;
+
+        public bool genChunk;
+        
         private void Start()
         {
             for (int x = -2; x < 2; x++)
@@ -22,13 +30,32 @@ namespace VoxelTerrain
             }
         }
 
+        private void Update()
+        {
+            if (genChunk)
+            {
+                genChunk = true;
+                WorldPos chunkPos = new WorldPos(newChunkX, newChunkY, newChunkZ);
+                Chunk chunk = null;
+
+                if (chunks.TryGetValue(chunkPos, out chunk))
+                {
+                    DestroyChunk(chunkPos.x, chunkPos.y, chunkPos.z);
+                }
+                else
+                {
+                    CreateChunk(chunkPos.x, chunkPos.y, chunkPos.z);
+                }
+            }
+        }
+
         public void CreateChunk(int x, int y, int z)
         {
             // The coordinates of this chunk in the world
             WorldPos worldPos = new WorldPos(x, y, z);
             
             // Instantiate the chunk at the coordinates using the chunk prefab
-            GameObject newChunkObject = Instantiate(chunkPrefab, new Vector3(x, y, z), Quaternion.Euler(Vector3.zero)) as GameObject;
+            GameObject newChunkObject = Instantiate(chunkPrefab, new Vector3(worldPos.x, worldPos.y, worldPos.z), Quaternion.Euler(Vector3.zero)) as GameObject;
             
             // Get the object's chunk component
             Chunk newChunk = newChunkObject.GetComponent<Chunk>();
@@ -40,6 +67,12 @@ namespace VoxelTerrain
             // Add it to the chunks dictionary with the position as the key
             chunks.Add(worldPos, newChunk);
 
+            bool loaded = Serialisation.Load(newChunk);
+            if (loaded)
+            {
+                return;
+            }
+            
             for (int xi = 0; xi < 16; xi++)
             {
                 for (int yi = 0; yi < 16; yi++)
@@ -64,7 +97,8 @@ namespace VoxelTerrain
             Chunk chunk = null;
             if (chunks.TryGetValue(new WorldPos(x, y, z), out chunk))
             {
-                Object.Destroy(chunk.gameObject);
+                Serialisation.SaveChunk(chunk);
+                UnityEngine.Object.Destroy(chunk.gameObject);
                 chunks.Remove(new WorldPos(x, y, z));
             }
         }

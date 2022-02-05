@@ -1,5 +1,8 @@
+using System;
+
 namespace VoxelTerrain
 {
+    [Serializable]
     public class BlockGrass : Block
     {
         public BlockGrass()

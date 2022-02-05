@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace VoxelTerrain
 {
+    [Serializable]
     public class Block
     {
         private const float tileSize = 0.25f;

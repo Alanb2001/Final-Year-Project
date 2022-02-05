@@ -1,5 +1,8 @@
+using System;
+
 namespace VoxelTerrain
 {
+    [Serializable]
     public class BlockAir : Block
     {
         public BlockAir()

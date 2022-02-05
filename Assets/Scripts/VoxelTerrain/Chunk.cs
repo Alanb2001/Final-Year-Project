@@ -7,7 +7,7 @@ namespace VoxelTerrain
     [RequireComponent(typeof(MeshCollider))]
     public class Chunk : MonoBehaviour
     {
-        private Block[, ,] _blocks = new Block[chunkSize, chunkSize, chunkSize];
+        public Block[, ,] _blocks = new Block[chunkSize, chunkSize, chunkSize];
         public static int chunkSize = 16;
         public bool update = true;
         public World world;
