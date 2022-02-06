@@ -9,10 +9,11 @@ namespace VoxelTerrain
     {
         public Block[, ,] _blocks = new Block[chunkSize, chunkSize, chunkSize];
         public static int chunkSize = 16;
-        public bool update = true;
+        public bool update = false;
         public World world;
         public WorldPos pos;
-
+        public bool rendered;
+        
         private MeshFilter _filter;
         private MeshCollider _coll;
         
@@ -74,6 +75,7 @@ namespace VoxelTerrain
         // Updates the chunk based on its contents
         void UpdateChunk()
         {
+            rendered = true;
             MeshData meshData = new MeshData();
             for (int x = 0; x < chunkSize; x++)
             {
