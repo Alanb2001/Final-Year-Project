@@ -11,7 +11,7 @@ namespace VoxelTerrain
         private List<WorldPos> buildList = new List<WorldPos>();
 
         private int timer = 0;
-        
+
         static WorldPos[] chunkPositions =
         {
             new WorldPos(0, 0, 0), new WorldPos(-1, 0, 0), new WorldPos(0, 0, -1), new WorldPos(0, 0, 1),
@@ -100,9 +100,9 @@ namespace VoxelTerrain
                 Mathf.FloorToInt(transform.position.x / Chunk.chunkSize) * Chunk.chunkSize,
                 Mathf.FloorToInt(transform.position.y / Chunk.chunkSize) * Chunk.chunkSize,
                 Mathf.FloorToInt(transform.position.z / Chunk.chunkSize) * Chunk.chunkSize);
-            
+
             // If there aren't already chunks to generate
-            if (buildList.Count == 0)
+            if (updateList.Count == 0)
             {
                 // Cycle through the array of positions
                 for (int i = 0; i < chunkPositions.Length; i++)
@@ -118,11 +118,25 @@ namespace VoxelTerrain
                     {
                         continue;
                     }
+
                     // Load a column of chunks in this position
                     for (int y = -4; y < 4; y++)
                     {
-                        buildList.Add(new WorldPos(newChunkPos.x, y * Chunk.chunkSize, newChunkPos.z));
+                        for (int x = newChunkPos.x - Chunk.chunkSize;
+                            x <= newChunkPos.x + Chunk.chunkSize;
+                            x += Chunk.chunkSize)
+                        {
+                            for (int z = newChunkPos.z - Chunk.chunkSize;
+                                z <= newChunkPos.z + Chunk.chunkSize;
+                                z += Chunk.chunkSize)
+                            {
+                                buildList.Add(new WorldPos(x, y * Chunk.chunkSize, z));
+                            }
+                        }
+
+                        updateList.Add(new WorldPos(newChunkPos.x, y * Chunk.chunkSize, newChunkPos.z));
                     }
+
                     return;
                 }
             }
@@ -130,50 +144,39 @@ namespace VoxelTerrain
 
         void BuildChunk(WorldPos pos)
         {
-            for (int y = pos.y - Chunk.chunkSize; y <= pos.y + Chunk.chunkSize; y += Chunk.chunkSize)
+            if (world.GetChunk(pos.x, pos.y, pos.z) == null)
             {
-                if (y > 64 || y < - 64)
-                {
-                    continue;
-                }
-
-                for (int x = pos.x - Chunk.chunkSize; x <= pos.x + Chunk.chunkSize; x += Chunk.chunkSize)
-                {
-                    for (int z = pos.z - Chunk.chunkSize; z <= pos.z + Chunk.chunkSize; z += Chunk.chunkSize)
-                    {
-                        if (world.GetChunk(x, y, z) == null)
-                        {
-                            world.CreateChunk(x, y, z);
-                        }
-                    }
-                }
+                world.CreateChunk(pos.x, pos.y, pos.z);
             }
-            updateList.Add(pos);
         }
 
         void LoadAndRenderChunks()
         {
-            for (int i = 0; i < 4; i++)
+            if (buildList.Count != 0)
             {
-                if (buildList.Count != 0)
+                for (int i = 0; i < buildList.Count && i < 8; i++)
                 {
                     BuildChunk(buildList[0]);
                     buildList.RemoveAt(0);
                 }
+
+                // If chunks were built return early
+                return;
             }
 
-            for (int i = 0; i < updateList.Count; i++)
+            if (updateList.Count != 0)
             {
                 Chunk chunk = world.GetChunk(updateList[0].x, updateList[0].y, updateList[0].z);
                 if (chunk != null)
                 {
                     chunk.update = true;
-                    updateList.RemoveAt(0);
                 }
+
+                updateList.RemoveAt(0);
             }
         }
 
-        void DeleteChunks()
+        bool DeleteChunks()
         {
             if (timer == 10)
             {
@@ -194,14 +197,20 @@ namespace VoxelTerrain
                 }
 
                 timer = 0;
+                return true;
             }
 
             timer++;
+            return false;
         }
-        
+
         private void Update()
         {
-            DeleteChunks();
+            if (DeleteChunks())
+            {
+                return;
+            }
+
             FindChunksToLoad();
             LoadAndRenderChunks();
         }

@@ -13,22 +13,29 @@ namespace VoxelTerrain
             this.y = y;
             this.z = z;
         }
-
-        public override bool Equals(Object obj)
+        
+        public override int GetHashCode()
         {
-            if (!(obj is WorldPos))
+            unchecked
             {
-                return false;
+                int hash = 47;
+
+                hash = hash * 227 + x.GetHashCode();
+                hash = hash * 227 + y.GetHashCode();
+                hash = hash * 227 + z.GetHashCode();
+
+                return hash;
             }
-            WorldPos pos = (WorldPos)obj;
-            if (pos.x != x || pos.y != y || pos.z != z)
-            {
-                return false;
-            }
-            else
+        }
+        
+        public override bool Equals(object obj)
+        {
+            if (GetHashCode() == obj.GetHashCode())
             {
                 return true;
             }
+
+            return false;
         }
     }
 }

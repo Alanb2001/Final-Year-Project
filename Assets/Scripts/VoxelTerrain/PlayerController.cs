@@ -10,12 +10,18 @@ namespace VoxelTerrain
         [SerializeField] private float gravity = -13.0f;
         [SerializeField][Range(0.0f, 0.5f)] private float moveSmoothTime = 0.3f;
         [SerializeField][Range(0.0f, 0.5f)] private float mouseSmoothTime = 0.03f;
+        [SerializeField] private float jumpForce = 8.0f;
         
         [SerializeField] private bool lockCursor = true;
+        [SerializeField] bool canJump = true;
+
+        [SerializeField] private KeyCode jumpKey = KeyCode.Space;
         
         private float cameraPitch = 0.0f;
         private float velocityY = 0.0f;
         private CharacterController controller = null;
+
+        private bool ShouldJump => Input.GetKeyDown(jumpKey);  
         
         Vector2 currentDir = Vector2.zero;
         Vector2 currentDirVelocity = Vector2.zero;
@@ -37,7 +43,7 @@ namespace VoxelTerrain
         {
             UpdateMouseLook();
             UpdateMovement();
-                
+
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
                 RaycastHit hit;
@@ -73,12 +79,17 @@ namespace VoxelTerrain
             if (controller.isGrounded)
             {
                 velocityY = 0.0f;
+                
+                if (canJump && ShouldJump)
+                {
+                    velocityY = jumpForce;
+                }
             }
 
             velocityY += gravity * Time.deltaTime;
             
             Vector3 velocity = (transform.forward * currentDir.y + transform.right * currentDir.x) * walkSpeed + Vector3.up * velocityY;
-
+            
             controller.Move(velocity * Time.deltaTime);
         }
     }
