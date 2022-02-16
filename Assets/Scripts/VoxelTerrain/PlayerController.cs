@@ -21,6 +21,8 @@ namespace VoxelTerrain
         private float velocityY = 0.0f;
         private CharacterController controller = null;
 
+        private Camera _camera;
+        
         private bool ShouldJump => Input.GetKeyDown(jumpKey);  
         
         Vector2 currentDir = Vector2.zero;
@@ -31,6 +33,7 @@ namespace VoxelTerrain
         
         private void Start()
         {
+            _camera = Camera.main;
             controller = GetComponent<CharacterController>();
             if (lockCursor)
             {
@@ -43,15 +46,7 @@ namespace VoxelTerrain
         {
             UpdateMouseLook();
             UpdateMovement();
-
-            if (Input.GetKeyDown(KeyCode.Mouse0))
-            {
-                RaycastHit hit;
-                if (Physics.Raycast(transform.position, transform.forward, out hit, 100))
-                {
-                    EditTerrain.SetBlock(hit, new BlockAir());
-                }
-            }
+            RemoveBlock();
         }
 
         void UpdateMouseLook()
@@ -91,6 +86,20 @@ namespace VoxelTerrain
             Vector3 velocity = (transform.forward * currentDir.y + transform.right * currentDir.x) * walkSpeed + Vector3.up * velocityY;
             
             controller.Move(velocity * Time.deltaTime);
+        }
+
+        void RemoveBlock()
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                
+                if (Physics.Raycast(ray, out hit, 10))
+                {
+                    EditTerrain.SetBlock(hit, new BlockAir());
+                }
+            }
         }
     }
 }
