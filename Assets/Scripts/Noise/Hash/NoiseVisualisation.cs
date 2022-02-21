@@ -1,31 +1,34 @@
-using Unity.Burst;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
 using static Unity.Mathematics.math;
+using static Noise.Hash.Noise;
 
 namespace Noise.Hash
 {
-    public class HashVisualisation : Visualisation
+    public class NoiseVisualisation : Visualisation
     {
-        private static int hasesId = Shader.PropertyToID("_Hashes");
+        private static ScheduleDelegate[] noiseJobs =
+            { Job<Lattice1D>.ScheduleParallel, Job<Lattice2D>.ScheduleParallel, Job<Lattice3D>.ScheduleParallel };
+
+        private static int noiseId = Shader.PropertyToID("_Noise");
 
         [SerializeField] private int seed;
         [SerializeField] private SpaceTRS domain = new SpaceTRS { scale = 8f };
+        [SerializeField, Range(1, 3)] private int dimensions = 3;
+        
+        private NativeArray<float4> _noise;
 
-        private NativeArray<uint4> _hashes;
-
-        private ComputeBuffer _hashesBuffer;
+        private ComputeBuffer _noiseBuffer;
 
         private static Shapes.ScheduleDelegate[] shapeJobs =
         {
             Shapes.Job<Shapes.Plane>.ScheduleParallel, Shapes.Job<Shapes.Sphere>.ScheduleParallel,
             Shapes.Job<Shapes.Torus>.ScheduleParallel,
         };
-
-        [BurstCompile(FloatPrecision.Standard, FloatMode.Fast, CompileSynchronously = true)]
+        
         struct HashJob : IJobFor
         {
             [ReadOnly] public NativeArray<float3x4> positions;
@@ -44,7 +47,7 @@ namespace Noise.Hash
 
             public void Execute(int i)
             {
-                float4x3 p = domainTRS.TransfromVectors(transpose(positions[i]));
+                float4x3 p = TransfromPositions(domainTRS, transpose(positions[i]));
 
                 int4 u = (int4)floor(p.c0);
                 int4 v = (int4)floor(p.c1);
@@ -56,26 +59,22 @@ namespace Noise.Hash
 
         protected override void EnableVisualisation(int dataLength, MaterialPropertyBlock propertyBlock)
         {
-            _hashes = new NativeArray<uint4>(dataLength, Allocator.Persistent);
-            _hashesBuffer = new ComputeBuffer(dataLength * 4, 4);
-            propertyBlock.SetBuffer(hasesId, _hashesBuffer);
+            _noise = new NativeArray<float4>(dataLength, Allocator.Persistent);
+            _noiseBuffer = new ComputeBuffer(dataLength * 4, 4);
+            propertyBlock.SetBuffer(noiseId, _noiseBuffer);
         }
 
         protected override void DisableVisualisation()
         {
-            _hashes.Dispose();
-            _hashesBuffer.Release();
-            _hashesBuffer = null;
+            _noise.Dispose();
+            _noiseBuffer.Release();
+            _noiseBuffer = null;
         }
 
         protected override void UpdateVisualisation(NativeArray<float3x4> positions, int resolution, JobHandle handle)
         {
-            new HashJob
-            {
-                positions = positions, hashes = _hashes, hash = SmallXXHash.Seed(seed), domainTRS = domain.Matrix
-            }.ScheduleParallel(_hashes.Length, resolution, handle).Complete();
-
-            _hashesBuffer.SetData(_hashes.Reinterpret<uint>(4 * 4));
+            noiseJobs[dimensions - 1](positions, _noise, seed, domain, resolution, handle).Complete();
+            _noiseBuffer.SetData(_noise.Reinterpret<float4>(4 * 4));
         }
     }
 }
