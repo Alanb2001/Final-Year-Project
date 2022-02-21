@@ -9,6 +9,7 @@ namespace Noise.Hash
         struct LatticeSpan4
         {
             public int4 p0, p1;
+	    public float4 g;
             public float4 t;
         }
 
@@ -18,6 +19,7 @@ namespace Noise.Hash
             LatticeSpan4 span;
             span.p0 = (int4)points;
             span.p1 = span.p0 + 1;
+	    span.g = coordinates - span.p0;
             span.t = coordinates - points;
             span.t = span.t * span.t * span.t * (span.t * (span.t * 6f - 15f) + 10f);
             return span;
@@ -28,7 +30,9 @@ namespace Noise.Hash
             public float4 GetNoise4(float4x3 positions, SmallXXHash4 hash)
             {
                 LatticeSpan4 x = GetLatticSpan4(positions.c0);
-                return lerp(hash.Eat(x.p0).Floats01A, hash.Eat(x.p1).Floats01A , x.t) * 2f - 1f;
+
+		var g = default(Value);
+                return lerp(g.Evaluate(hash.Eat(x.p0), x.g), g.Evaluate(hash.Eat(x.p1), x.g), x.t) * 2f - 1f;
             }
         }
         
