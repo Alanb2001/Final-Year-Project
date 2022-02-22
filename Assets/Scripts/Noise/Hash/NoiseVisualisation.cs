@@ -10,15 +10,31 @@ namespace Noise.Hash
 {
     public class NoiseVisualisation : Visualisation
     {
-        private static ScheduleDelegate[] noiseJobs =
-            { Job<Lattice1D>.ScheduleParallel, Job<Lattice2D>.ScheduleParallel, Job<Lattice3D>.ScheduleParallel };
+        private static ScheduleDelegate[,] noiseJobs =
+        {
+            {
+                Job<Lattice1D<Perlin>>.ScheduleParallel, Job<Lattice2D<Perlin>>.ScheduleParallel,
+                Job<Lattice3D<Perlin>>.ScheduleParallel
+            },
+            {
+                Job<Lattice1D<Value>>.ScheduleParallel, Job<Lattice2D<Value>>.ScheduleParallel, Job<Lattice3D<Value>>
+                    .ScheduleParallel
+            }
+        };
+
+        public enum NoiseType
+        {
+            Perlin,
+            Value
+        }
 
         private static int noiseId = Shader.PropertyToID("_Noise");
 
         [SerializeField] private int seed;
         [SerializeField] private SpaceTRS domain = new SpaceTRS { scale = 8f };
         [SerializeField, Range(1, 3)] private int dimensions = 3;
-        
+        [SerializeField] private NoiseType type;
+
         private NativeArray<float4> _noise;
 
         private ComputeBuffer _noiseBuffer;
@@ -28,7 +44,7 @@ namespace Noise.Hash
             Shapes.Job<Shapes.Plane>.ScheduleParallel, Shapes.Job<Shapes.Sphere>.ScheduleParallel,
             Shapes.Job<Shapes.Torus>.ScheduleParallel,
         };
-        
+
         struct HashJob : IJobFor
         {
             [ReadOnly] public NativeArray<float3x4> positions;
@@ -73,7 +89,7 @@ namespace Noise.Hash
 
         protected override void UpdateVisualisation(NativeArray<float3x4> positions, int resolution, JobHandle handle)
         {
-            noiseJobs[dimensions - 1](positions, _noise, seed, domain, resolution, handle).Complete();
+            noiseJobs[(int)type, dimensions - 1](positions, _noise, seed, domain, resolution, handle).Complete();
             _noiseBuffer.SetData(_noise.Reinterpret<float4>(4 * 4));
         }
     }

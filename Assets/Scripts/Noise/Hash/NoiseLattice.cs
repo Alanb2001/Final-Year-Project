@@ -9,7 +9,7 @@ namespace Noise.Hash
         struct LatticeSpan4
         {
             public int4 p0, p1;
-	    public float4 g;
+            public float4 g0, g1;
             public float4 t;
         }
 
@@ -19,24 +19,25 @@ namespace Noise.Hash
             LatticeSpan4 span;
             span.p0 = (int4)points;
             span.p1 = span.p0 + 1;
-	    span.g = coordinates - span.p0;
+            span.g0 = coordinates - span.p0;
+            span.g1 = span.g0 - 1f;
             span.t = coordinates - points;
             span.t = span.t * span.t * span.t * (span.t * (span.t * 6f - 15f) + 10f);
             return span;
         }
-        
-        public struct Lattice1D : INoise
+
+        public struct Lattice1D<G> : INoise where G : struct, IGradient
         {
             public float4 GetNoise4(float4x3 positions, SmallXXHash4 hash)
             {
                 LatticeSpan4 x = GetLatticSpan4(positions.c0);
 
-		var g = default(Value);
-                return lerp(g.Evaluate(hash.Eat(x.p0), x.g), g.Evaluate(hash.Eat(x.p1), x.g), x.t) * 2f - 1f;
+		        var g = default(G);
+                return lerp(g.Evaluate(hash.Eat(x.p0), x.g0), g.Evaluate(hash.Eat(x.p1), x.g1), x.t) * 2f - 1f;
             }
         }
         
-        public struct Lattice2D : INoise
+        public struct Lattice2D<G> : INoise where G : struct, IGradient
         {
             public float4 GetNoise4(float4x3 positions, SmallXXHash4 hash)
             {
@@ -44,12 +45,13 @@ namespace Noise.Hash
 
                 SmallXXHash4 h0 = hash.Eat(x.p0), h1 = hash.Eat(x.p1);
 
-                return lerp(lerp(h0.Eat(z.p0).Floats01A, h0.Eat(z.p1).Floats01A, z.t),
-                    lerp(h1.Eat(z.p0).Floats01A, h1.Eat(z.p1).Floats01A, z.t), x.t) * 2f - 1f;
+                var g = default(G);
+                return lerp(lerp(g.Evaluate(h0.Eat(z.p0), x.g0, z.g0), g.Evaluate(h0.Eat(z.p1), x.g0, z.g1), z.t),
+                    lerp(g.Evaluate(h1.Eat(z.p0), x.g1, z.g0), g.Evaluate(h1.Eat(z.p1), x.g1, z.g1), z.t), x.t);
             }
         }
         
-        public struct Lattice3D : INoise
+        public struct Lattice3D<G> : INoise where G : struct, IGradient
         {
             public float4 GetNoise4(float4x3 positions, SmallXXHash4 hash)
             {
@@ -62,19 +64,36 @@ namespace Noise.Hash
                     h10 = h1.Eat(y.p0),
                     h11 = h1.Eat(y.p1);
 
+                var g = default(G);
                 return lerp(
                     lerp(
-                        lerp(h00.Eat(z.p0).Floats01A, h00.Eat(z.p1).Floats01A, z.t),
-                        lerp(h01.Eat(z.p0).Floats01A, h01.Eat(z.p1).Floats01A, z.t),
+                        lerp(
+                            g.Evaluate(h00.Eat(z.p0), x.g0, y.g0, z.g0),
+                            g.Evaluate(h00.Eat(z.p1), x.g0, y.g0, z.g1),
+                            z.t
+                        ),
+                        lerp(
+                            g.Evaluate(h01.Eat(z.p0), x.g0, y.g1, z.g0),
+                            g.Evaluate(h01.Eat(z.p1), x.g0, y.g1, z.g1),
+                            z.t
+                        ),
                         y.t
                     ),
                     lerp(
-                        lerp(h10.Eat(z.p0).Floats01A, h10.Eat(z.p1).Floats01A, z.t),
-                        lerp(h11.Eat(z.p0).Floats01A, h11.Eat(z.p1).Floats01A, z.t),
+                        lerp(
+                            g.Evaluate(h10.Eat(z.p0), x.g1, y.g0, z.g0),
+                            g.Evaluate(h10.Eat(z.p1), x.g1, y.g0, z.g1),
+                            z.t
+                        ),
+                        lerp(
+                            g.Evaluate(h11.Eat(z.p0), x.g1, y.g1, z.g0),
+                            g.Evaluate(h11.Eat(z.p1), x.g1, y.g1, z.g1),
+                            z.t
+                        ),
                         y.t
                     ),
                     x.t
-                ) * 2f - 1f;
+                );
             }
         }
     }
