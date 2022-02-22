@@ -21,25 +21,39 @@ namespace Noise.Hash
 
             [WriteOnly] public NativeArray<float4> noise;
 
-            public SmallXXHash4 hash;
+            public Settings settings;
 
             public float3x4 domainTRS;
 
             public void Execute(int i)
             {
-                noise[i] = default(N).GetNoise4(domainTRS.TransfromVectors(transpose(positions[i])), hash);
+                float4x3 position = domainTRS.TransfromVectors(transpose(positions[i]));
+                var hash = SmallXXHash4.Seed(settings.seed);
+                int frequency = settings.frequency;
+                float amplitude = 1f, amplitudeSum = 0f;
+                float4 sum = 0f;
+
+                for (int o = 0; o < settings.octaves; o++)
+                {
+                    sum += amplitude * default(N).GetNoise4(frequency * position, hash + o);
+                    frequency *= settings.lacunarity;
+                    amplitude *= settings.persistence;
+                    amplitudeSum += amplitude;
+                }
+                
+                noise[i] = sum / amplitudeSum;
             }
 
             public static JobHandle ScheduleParallel(NativeArray<float3x4> positions, NativeArray<float4> noise,
-                int seed, SpaceTRS domainTRS, int resolution, JobHandle dependency
+                Settings settings, SpaceTRS domainTRS, int resolution, JobHandle dependency
             ) => new Job<N>
                 {
-                    positions = positions, noise = noise, hash = SmallXXHash.Seed(seed), domainTRS = domainTRS.Matrix
+                    positions = positions, noise = noise, settings = settings, domainTRS = domainTRS.Matrix
                 }
                 .ScheduleParallel(positions.Length, resolution, dependency);
         }
 
-        public delegate JobHandle ScheduleDelegate(NativeArray<float3x4> positions, NativeArray<float4> noise, int seed,
+        public delegate JobHandle ScheduleDelegate(NativeArray<float3x4> positions, NativeArray<float4> noise, Settings settings,
             SpaceTRS trs, int resolution, JobHandle dependency);
     }
 }

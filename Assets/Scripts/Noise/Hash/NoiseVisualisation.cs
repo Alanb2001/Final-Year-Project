@@ -17,7 +17,17 @@ namespace Noise.Hash
                 Job<Lattice3D<Perlin>>.ScheduleParallel
             },
             {
+                Job<Lattice1D<Turbulence<Perlin>>>.ScheduleParallel,
+                Job<Lattice2D<Turbulence<Perlin>>>.ScheduleParallel,
+                Job<Lattice3D<Turbulence<Perlin>>>.ScheduleParallel
+            },
+            {
                 Job<Lattice1D<Value>>.ScheduleParallel, Job<Lattice2D<Value>>.ScheduleParallel, Job<Lattice3D<Value>>
+                    .ScheduleParallel
+            },
+            {
+                Job<Lattice1D<Turbulence<Value>>>.ScheduleParallel, Job<Lattice2D<Turbulence<Value>>>.ScheduleParallel,
+                Job<Lattice3D<Turbulence<Value>>>
                     .ScheduleParallel
             }
         };
@@ -25,12 +35,14 @@ namespace Noise.Hash
         public enum NoiseType
         {
             Perlin,
-            Value
+            PerlinTurbulence,
+            Value,
+            ValueTurbulence
         }
 
         private static int noiseId = Shader.PropertyToID("_Noise");
 
-        [SerializeField] private int seed;
+        [SerializeField] private Settings noiseSettings = Settings.Default;
         [SerializeField] private SpaceTRS domain = new SpaceTRS { scale = 8f };
         [SerializeField, Range(1, 3)] private int dimensions = 3;
         [SerializeField] private NoiseType type;
@@ -89,7 +101,7 @@ namespace Noise.Hash
 
         protected override void UpdateVisualisation(NativeArray<float3x4> positions, int resolution, JobHandle handle)
         {
-            noiseJobs[(int)type, dimensions - 1](positions, _noise, seed, domain, resolution, handle).Complete();
+            noiseJobs[(int)type, dimensions - 1](positions, _noise, noiseSettings, domain, resolution, handle).Complete();
             _noiseBuffer.SetData(_noise.Reinterpret<float4>(4 * 4));
         }
     }
