@@ -71,7 +71,7 @@ namespace Noise.Hash
                 LatticeSpan4 x = default(L).GetLatticeSpan4(positions.c0, frequency);
 
 		        var g = default(G);
-                return g.EvaluateAfterInterpolation(lerp(g.Evaluate(hash.Eat(x.p0), x.g0), g.Evaluate(hash.Eat(x.p1), x.g1), x.t)) * 2f - 1f;
+                return g.EvaluateCombined(lerp(g.Evaluate(hash.Eat(x.p0), x.g0), g.Evaluate(hash.Eat(x.p1), x.g1), x.t)) * 2f - 1f;
             }
         }
         
@@ -86,7 +86,7 @@ namespace Noise.Hash
                 SmallXXHash4 h0 = hash.Eat(x.p0), h1 = hash.Eat(x.p1);
 
                 var g = default(G);
-                return g.EvaluateAfterInterpolation(lerp(lerp(g.Evaluate(h0.Eat(z.p0), x.g0, z.g0), g.Evaluate(h0.Eat(z.p1), x.g0, z.g1), z.t),
+                return g.EvaluateCombined(lerp(lerp(g.Evaluate(h0.Eat(z.p0), x.g0, z.g0), g.Evaluate(h0.Eat(z.p1), x.g0, z.g1), z.t),
                     lerp(g.Evaluate(h1.Eat(z.p0), x.g1, z.g0), g.Evaluate(h1.Eat(z.p1), x.g1, z.g1), z.t), x.t));
             }
         }
@@ -108,7 +108,7 @@ namespace Noise.Hash
                     h11 = h1.Eat(y.p1);
 
                 var g = default(G);
-                return g.EvaluateAfterInterpolation(lerp(
+                return g.EvaluateCombined(lerp(
                     lerp(
                         lerp(
                             g.Evaluate(h00.Eat(z.p0), x.g0, y.g0, z.g0),
