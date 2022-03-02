@@ -1,4 +1,5 @@
 using UnityEngine;
+using Noise.Hash;
 
 namespace VoxelTerrain
 {
@@ -10,14 +11,14 @@ namespace VoxelTerrain
         private float stoneMountainHeight = 48;
         private float stoneMountainFrequency = 0.008f;
         private float stoneMinHeight = -12;
-        private float dirtBaseHeight = 1;
-        private float dirtNoise = 0.04f;
-        private float dirtNoiseHeight = 3;
+        //private float dirtBaseHeight = 1;
+        //private float dirtNoise = 0.04f;
+        //private float dirtNoiseHeight = 3;
         private float caveFrequency = 0.025f;
-        private float treeFrequency = 0.2f;
+        //private float treeFrequency = 0.2f;
         
-        private int caveSize = 7;
-        private int treeDensity = 3;
+        private int caveSize = 20;
+        //private int treeDensity = 3;
         
         public Chunk ChunkGen(Chunk chunk)
         {
@@ -42,8 +43,8 @@ namespace VoxelTerrain
             }
 
             stoneHeight += GetNoise(x, 0, z, stoneBaseNoise, Mathf.FloorToInt(stoneBaseNoiseHeight));
-            int dirtHeight = stoneHeight + Mathf.FloorToInt(dirtBaseHeight);
-            dirtHeight += GetNoise(x, 100, z, dirtNoise, Mathf.FloorToInt(dirtNoiseHeight));
+            //int dirtHeight = stoneHeight + Mathf.FloorToInt(dirtBaseHeight);
+            //dirtHeight += GetNoise(x, 100, z, dirtNoise, Mathf.FloorToInt(dirtNoiseHeight));
             for (int y = chunk.pos.y - 8; y < chunk.pos.y + Chunk.chunkSize; y++)
             {
                 // Get a value to base cave generation on
@@ -52,14 +53,16 @@ namespace VoxelTerrain
                 {
                     SetBlock(x, y, z, new Block(), chunk);
                 }
-                else if (y <= dirtHeight && caveSize < caveChance)
+                else if (y <= /*dirtHeight*/ caveSize && caveSize < caveChance)
                 {
-                    SetBlock(x, y, z, new BlockGrass(), chunk);
+                    //SetBlock(x, y, z, new BlockGrass(), chunk);
 
-                    if (y == dirtHeight && GetNoise(x, 0, z, treeFrequency, 100) < treeDensity)
-                    {
-                        CreatTree(x, y + 1, z, chunk);
-                    }
+                    SetBlock(x, y, z, new Block(), chunk);
+                    
+                    //if (y == dirtHeight && GetNoise(x, 0, z, treeFrequency, 100) < treeDensity)
+                    //{
+                    //    CreatTree(x, y + 1, z, chunk);
+                    //}
                 }
                 else
                 {
