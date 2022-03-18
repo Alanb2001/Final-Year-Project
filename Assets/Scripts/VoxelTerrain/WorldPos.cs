@@ -30,12 +30,7 @@ namespace VoxelTerrain
         
         public override bool Equals(object obj)
         {
-            if (GetHashCode() == obj.GetHashCode())
-            {
-                return true;
-            }
-
-            return false;
+            return GetHashCode() == obj.GetHashCode();
         }
     }
 }
