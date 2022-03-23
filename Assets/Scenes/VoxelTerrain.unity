@@ -345,11 +345,11 @@ PrefabInstance:
       objectReference: {fileID: 680151154}
     - target: {fileID: 3468846394185644626, guid: 5e0f40966aa2ff84b87f3eca2f889845, type: 3}
       propertyPath: perimeter
-      value: 3
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 3468846394185644627, guid: 5e0f40966aa2ff84b87f3eca2f889845, type: 3}
       propertyPath: gravity
-      value: 0
+      value: -13
       objectReference: {fileID: 0}
     - target: {fileID: 3468846394185644629, guid: 5e0f40966aa2ff84b87f3eca2f889845, type: 3}
       propertyPath: m_RootOrder

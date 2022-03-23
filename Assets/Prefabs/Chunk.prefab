@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6647603291229057515}
   - component: {fileID: 6647603291229057512}
   - component: {fileID: 6647603291229057513}
+  - component: {fileID: 569414053537286101}
   m_Layer: 0
   m_Name: Chunk
   m_TagString: Untagged
@@ -116,3 +117,20 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  rendered: 0
+--- !u!114 &569414053537286101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6647603291229057519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3937b3cd45b8edf4ebf2f6f79cb506ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settings:
+    caveFrequency: 0.025
+    caveSize: 20
+    caveMax: 60

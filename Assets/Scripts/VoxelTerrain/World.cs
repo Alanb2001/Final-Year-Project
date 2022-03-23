@@ -27,7 +27,7 @@ namespace VoxelTerrain
             // Add it to the chunks dictionary with the position as the key
             chunks.Add(worldPos, newChunk);
 
-            var terrainGen = new TerrainGen();
+            var terrainGen = newChunkObject.GetComponent<TerrainGen>();
             newChunk = terrainGen.ChunkGen(newChunk);
             newChunk.SetBlocksUnmodified();
             bool loaded = Serialisation.Load(newChunk);
