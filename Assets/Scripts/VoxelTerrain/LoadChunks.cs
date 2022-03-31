@@ -1,4 +1,9 @@
+using System;
 using System.Collections.Generic;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace VoxelTerrain
@@ -8,20 +13,67 @@ namespace VoxelTerrain
         public World world;
         private List<WorldPos> updateList = new List<WorldPos>();
         private List<WorldPos> buildList = new List<WorldPos>();
-        private Vector3Int[] chunkPositions;
+        private WorldPos[] chunkPositions;
+
+        //private NativeArray<WorldPos> _chunkPositions;
 
         private int timer = 0;
 
         [SerializeField, Range(2, 10)] private int perimeter = 7;
      
+        //[BurstCompile]
+        //public struct GenChunk : IJobParallelFor
+        //{
+        //    public NativeArray<WorldPos> chunkPositions;
+      //
+        //    public int perimeter;
+//
+        //    public void Execute(int i)
+        //    {
+        //        var chunk = chunkPositions[i];
+        //        chunkPositions[i] = chunk;
+        //        perimeter = 7;
+//
+        //        chunkPositions = new NativeArray<WorldPos>((int)math.pow(perimeter * 2, 3), Allocator.Persistent);
+        //        
+        //        for (int x = 0; x < perimeter; x++)
+        //        {
+        //            for (int y = 0; y < perimeter; y++)
+        //            {
+        //                for (int z = 0; z < perimeter; z++)
+        //                {
+        //                    if (x == 0 && y == 0 && z == 0)
+        //                    {
+        //                        chunkPositions[i++] = new WorldPos(x, y, z);
+        //                        continue;
+        //                    }
+        //                    chunkPositions[i++] = new WorldPos(x, y, z);
+        //                    chunkPositions[i++] = new WorldPos(x * -1, y * -1, z * -1);
+        //                    chunkPositions[i++] = new WorldPos(x * -1, y, z);
+        //                    chunkPositions[i++] = new WorldPos(x, y* -1, z* -1);
+        //                    chunkPositions[i++] = new WorldPos(x, y * -1, z);
+        //                    chunkPositions[i++] = new WorldPos(x* -1, y, z* -1);
+        //                    chunkPositions[i++] = new WorldPos(x, y, z * -1);
+        //                    chunkPositions[i++] = new WorldPos(x * -1, y * -1, z);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+//
+        //private GenChunk _jobData;
+        //private JobHandle _jobHandle;
+        
         private void Awake()
         {
+            //chunkPositions = new NativeArray<WorldPos>(chunkPositions.Length, Allocator.Persistent);
+        
             CreatChunkPositions();
         }
 
         private void CreatChunkPositions()
         {
-            chunkPositions = new Vector3Int[(int)Mathf.Pow(perimeter * 2, 3)];
+            chunkPositions = new WorldPos[(int)Mathf.Pow(perimeter * 2, 3)];
             
             int i = 0;
             for (int x = 0; x < perimeter; x++)
@@ -32,19 +84,24 @@ namespace VoxelTerrain
                     {
                         if (x == 0 && y == 0 && z == 0)
                         {
-                            chunkPositions[i++] = new Vector3Int(x, y, z);
+                            chunkPositions[i++] = new WorldPos(x, y, z);
                             continue;
                         }
-                        chunkPositions[i++] = new Vector3Int(x, y, z);
-                        chunkPositions[i++] = new Vector3Int(x, y, z) * -1;
-                        chunkPositions[i++] = new Vector3Int(x * -1, y, z);
-                        chunkPositions[i++] = new Vector3Int(x * -1, y, z) * -1;
-                        chunkPositions[i++] = new Vector3Int(x, y * -1, z);
-                        chunkPositions[i++] = new Vector3Int(x, y * -1, z) * -1;
-                        chunkPositions[i++] = new Vector3Int(x, y, z * -1);
-                        chunkPositions[i++] = new Vector3Int(x, y, z * -1) * -1;
+                        chunkPositions[i++] = new WorldPos(x, y, z);
+                        chunkPositions[i++] = new WorldPos(x * -1, y * -1, z * -1);
+                        chunkPositions[i++] = new WorldPos(x * -1, y, z);
+                        chunkPositions[i++] = new WorldPos(x, y* -1, z* -1);
+                        chunkPositions[i++] = new WorldPos(x, y * -1, z);
+                        chunkPositions[i++] = new WorldPos(x* -1, y, z* -1);
+                        chunkPositions[i++] = new WorldPos(x, y, z * -1);
+                        chunkPositions[i++] = new WorldPos(x * -1, y * -1, z);
                     }
                 }
+            }
+            
+            foreach (var chunks in chunkPositions)
+            {
+                Debug.Log("X: " + chunks.x + " Y: " + chunks.y + " Z: " + chunks.z);
             }
         }
 
@@ -171,8 +228,16 @@ namespace VoxelTerrain
                 return;
             }
 
+            //var jobHandle = _jobData.Schedule(_chunkPositions.Length, 1);
+            //jobHandle.Complete();
+            
             FindChunksToLoad();
             LoadAndRenderChunks();
+        }
+
+        private void OnDestroy()
+        {
+            //chunkPositions.Dispose();
         }
     }
 }
