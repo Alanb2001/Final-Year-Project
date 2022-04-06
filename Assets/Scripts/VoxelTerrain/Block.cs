@@ -45,19 +45,19 @@ namespace VoxelTerrain
             }
         }
 
-        private const float tileSize = 0.25f;
+        private const float TileSize = 0.25f;
 
         public bool changed = true;
 
         public virtual Vector2[] FaceUVs(Direction direction)
         {
-            Vector2[] UVs = new Vector2[4];
-            Tile tilePos = TexturePosition(direction);
-            UVs[0] = new Vector2(tileSize * tilePos.x + tileSize, tileSize * tilePos.y);
-            UVs[1] = new Vector2(tileSize * tilePos.x + tileSize, tileSize * tilePos.y + tileSize);
-            UVs[2] = new Vector2(tileSize * tilePos.x, tileSize * tilePos.y + tileSize);
-            UVs[3] = new Vector2(tileSize * tilePos.x, tileSize * tilePos.y);
-            return UVs;
+            var uVs = new Vector2[4];
+            var tilePos = TexturePosition(direction);
+            uVs[0] = new Vector2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y);
+            uVs[1] = new Vector2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y + TileSize);
+            uVs[2] = new Vector2(TileSize * tilePos.x, TileSize * tilePos.y + TileSize);
+            uVs[3] = new Vector2(TileSize * tilePos.x, TileSize * tilePos.y);
+            return uVs;
         }
         
         public struct Tile
@@ -68,37 +68,40 @@ namespace VoxelTerrain
 
         public virtual Tile TexturePosition(Direction direction)
         {
-            Tile tile = new Tile();
-            tile.x = 0;
-            tile.y = 0;
+            var tile = new Tile
+            {
+                x = 0,
+                y = 0
+            };
+            
             return tile;
         }
         
         public enum Direction
         {
-            north,
-            east,
-            south,
-            west,
-            up,
-            down
+            North,
+            East,
+            South,
+            West,
+            Up,
+            Down
         }
 
         public virtual bool IsSolid(Direction direction)
         {
             switch (direction)
             {
-                case Direction.north:
+                case Direction.North:
                     return true;
-                case Direction.east:
+                case Direction.East:
                     return true;
-                case Direction.south:
+                case Direction.South:
                     return true;
-                case Direction.west:
+                case Direction.West:
                     return true;
-                case Direction.up:
+                case Direction.Up:
                     return true;
-                case Direction.down:
+                case Direction.Down:
                     return true;
             }
             return false;
@@ -107,27 +110,27 @@ namespace VoxelTerrain
         public virtual MeshData BlockData(Chunk chunk, int x, int y, int z, MeshData meshData)
         {
             meshData.useRenderDataForCol = true;
-            if (!chunk.GetBlock(x, y + 1, z).IsSolid(Direction.down))
+            if (!chunk.GetBlock(x, y + 1, z).IsSolid(Direction.Down))
             {
                 meshData = FaceDataUp(chunk, x, y, z, meshData);
             }
-            if (!chunk.GetBlock(x, y - 1, z).IsSolid(Direction.up))
+            if (!chunk.GetBlock(x, y - 1, z).IsSolid(Direction.Up))
             {
                 meshData = FaceDataDown(chunk, x, y, z, meshData);
             }
-            if (!chunk.GetBlock(x, y, z + 1).IsSolid(Direction.south))
+            if (!chunk.GetBlock(x, y, z + 1).IsSolid(Direction.South))
             {
                 meshData = FaceDataNorth(chunk, x, y, z, meshData);
             }
-            if (!chunk.GetBlock(x, y, z - 1).IsSolid(Direction.north))
+            if (!chunk.GetBlock(x, y, z - 1).IsSolid(Direction.North))
             {
                 meshData = FaceDataSouth(chunk, x, y, z, meshData);
             }
-            if (!chunk.GetBlock(x + 1, y, z).IsSolid(Direction.west))
+            if (!chunk.GetBlock(x + 1, y, z).IsSolid(Direction.West))
             {
                 meshData = FaceDataEast(chunk, x, y, z, meshData);
             }
-            if (!chunk.GetBlock(x - 1, y, z).IsSolid(Direction.east))
+            if (!chunk.GetBlock(x - 1, y, z).IsSolid(Direction.East))
             {
                 meshData = FaceDataWest(chunk, x, y, z, meshData);
             }
@@ -142,7 +145,7 @@ namespace VoxelTerrain
             meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
             
             meshData.AddQuadTriangles();
-            meshData.uv.AddRange(FaceUVs(Direction.up));
+            meshData.uv.AddRange(FaceUVs(Direction.Up));
             return meshData;
         }
         
@@ -154,7 +157,7 @@ namespace VoxelTerrain
             meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
             
             meshData.AddQuadTriangles();
-            meshData.uv.AddRange(FaceUVs(Direction.down));
+            meshData.uv.AddRange(FaceUVs(Direction.Down));
             return meshData;
         }
         
@@ -166,7 +169,7 @@ namespace VoxelTerrain
             meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
             
             meshData.AddQuadTriangles();
-            meshData.uv.AddRange(FaceUVs(Direction.north));
+            meshData.uv.AddRange(FaceUVs(Direction.North));
             return meshData;
         }
         
@@ -178,7 +181,7 @@ namespace VoxelTerrain
             meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
             
             meshData.AddQuadTriangles();
-            meshData.uv.AddRange(FaceUVs(Direction.east));
+            meshData.uv.AddRange(FaceUVs(Direction.East));
             return meshData;
         }
         
@@ -190,7 +193,7 @@ namespace VoxelTerrain
             meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
             
             meshData.AddQuadTriangles();
-            meshData.uv.AddRange(FaceUVs(Direction.south));
+            meshData.uv.AddRange(FaceUVs(Direction.South));
             return meshData;
         }
         
@@ -202,7 +205,7 @@ namespace VoxelTerrain
             meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
             
             meshData.AddQuadTriangles();
-            meshData.uv.AddRange(FaceUVs(Direction.west));
+            meshData.uv.AddRange(FaceUVs(Direction.West));
             return meshData;
         }
     }

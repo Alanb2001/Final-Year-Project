@@ -67,7 +67,7 @@ namespace VoxelTerrain
             }
         }
 
-        void FindChunksToLoad()
+        private void FindChunksToLoad()
         {
             // Get the position of this gameObject to generate around
             WorldPos playerPos = new WorldPos(
