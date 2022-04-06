@@ -6,11 +6,11 @@ namespace VoxelTerrain
 {
     public static class Serialisation
     {
-        public static string saveFolderName = "voxelGameSaves";
+        private const string SaveFolderName = "voxelGameSaves";
 
-        public static string SaveLocation(string worldName)
+        private static string SaveLocation(string worldName)
         {
-            string saveLocation = saveFolderName + "/" + worldName + "/";
+            var saveLocation = SaveFolderName + "/" + worldName + "/";
 
             if (!Directory.Exists(saveLocation))
             {
@@ -20,21 +20,21 @@ namespace VoxelTerrain
             return saveLocation;
         }
 
-        public static string FileName(WorldPos chunkLocation)
+        private static string FileName(WorldPos chunkLocation)
         {
-            string fileName = chunkLocation.x + "," + chunkLocation.y + "," + chunkLocation.z + ".bin";
+            var fileName = chunkLocation.x + "," + chunkLocation.y + "," + chunkLocation.z + ".bin";
             return fileName;
         }
         
         public static void SaveChunk(Chunk chunk)
         {
-            Save save = new Save(chunk);
+            var save = new Save(chunk);
             if (save.blocks.Count == 0)
             {
                 return;
             }
             
-            string saveFile = SaveLocation(chunk.world.worldName);
+            var saveFile = SaveLocation(chunk.world.worldName);
             saveFile += FileName(chunk.pos);
 
             IFormatter formatter = new BinaryFormatter();
@@ -45,7 +45,7 @@ namespace VoxelTerrain
 
         public static bool Load(Chunk chunk)
         {
-            string saveFile = SaveLocation(chunk.world.worldName);
+            var saveFile = SaveLocation(chunk.world.worldName);
             saveFile += FileName(chunk.pos);
 
             if (!File.Exists(saveFile))
@@ -54,12 +54,12 @@ namespace VoxelTerrain
             }
             
             IFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(saveFile, FileMode.Open);
+            var stream = new FileStream(saveFile, FileMode.Open);
 
-            Save save = (Save)formatter.Deserialize(stream);
+            var save = (Save)formatter.Deserialize(stream);
             foreach (var block in save.blocks)
             {
-                chunk._blocks[block.Key.x, block.Key.y, block.Key.z] = block.Value;
+                chunk.blocks[block.Key.x, block.Key.y, block.Key.z] = block.Value;
             }
             stream.Close();
             return true;

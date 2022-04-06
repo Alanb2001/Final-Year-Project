@@ -10,19 +10,19 @@ namespace VoxelTerrain
 
         public Save(Chunk chunk)
         {
-            for (int x = 0; x < Chunk.chunkSize; x++)
+            for (var x = 0; x < Chunk.ChunkSize; x++)
             {
-                for (int y = 0; y < Chunk.chunkSize; y++)
+                for (var y = 0; y < Chunk.ChunkSize; y++)
                 {
-                    for (int z = 0; z < Chunk.chunkSize; z++)
+                    for (var z = 0; z < Chunk.ChunkSize; z++)
                     {
-                        if (!chunk._blocks[x, y, z].changed)
+                        if (!chunk.blocks[x, y, z].changed)
                         {
                             continue;
                         }
 
-                        WorldPos pos = new WorldPos(x, y, z);
-                        blocks.Add(pos, chunk._blocks[x, y, z]);
+                        var pos = new WorldPos(x, y, z);
+                        blocks.Add(pos, chunk.blocks[x, y, z]);
                     }
                 }
             }

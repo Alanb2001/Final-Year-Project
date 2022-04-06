@@ -18,7 +18,7 @@ namespace VoxelTerrain
         {
             unchecked
             {
-                int hash = 47;
+                var hash = 47;
 
                 hash = hash * 227 + x.GetHashCode();
                 hash = hash * 227 + y.GetHashCode();
@@ -30,7 +30,7 @@ namespace VoxelTerrain
         
         public override bool Equals(object obj)
         {
-            return GetHashCode() == obj.GetHashCode();
+            return obj != null && GetHashCode() == obj.GetHashCode();
         }
     }
 }

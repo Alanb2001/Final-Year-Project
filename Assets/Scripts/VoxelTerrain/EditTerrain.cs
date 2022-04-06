@@ -4,15 +4,15 @@ namespace VoxelTerrain
 {
     public static class EditTerrain
     {
-        public static WorldPos GetBlockPos(Vector3 pos)
+        private static WorldPos GetBlockPos(Vector3 pos)
         {
-            WorldPos blockPos = new WorldPos(Mathf.RoundToInt(pos.x), Mathf.RoundToInt(pos.y), Mathf.RoundToInt(pos.z));
+            var blockPos = new WorldPos(Mathf.RoundToInt(pos.x), Mathf.RoundToInt(pos.y), Mathf.RoundToInt(pos.z));
             return blockPos;
         }
 
-        public static WorldPos GetBlockPos(RaycastHit hit, bool adjacent = false)
+        private static WorldPos GetBlockPos(RaycastHit hit, bool adjacent = false)
         {
-            Vector3 pos = new Vector3(MoveWithinBlock(hit.point.x, hit.normal.x, adjacent),
+            var pos = new Vector3(MoveWithinBlock(hit.point.x, hit.normal.x, adjacent),
                 MoveWithinBlock(hit.point.y, hit.normal.y, adjacent),
                 MoveWithinBlock(hit.point.z, hit.normal.z, adjacent));
             return GetBlockPos(pos);
@@ -31,7 +31,7 @@ namespace VoxelTerrain
                     pos -= (norm / 2);
                 }
             }
-            return (float)pos;
+            return pos;
         }
 
         public static bool SetBlock(RaycastHit hit, Block block, bool adjacent = false)
@@ -51,15 +51,15 @@ namespace VoxelTerrain
 
         public static bool GetBlock(RaycastHit hit, bool adjacent = false)
         {
-            Chunk chunk = hit.collider.GetComponent<Chunk>();
+            var chunk = hit.collider.GetComponent<Chunk>();
             if (chunk == null)
             {
                 return false;
             }
 
-            WorldPos pos = GetBlockPos(hit, adjacent);
+            var pos = GetBlockPos(hit, adjacent);
             
-            Block block = chunk.world.GetBlock(pos.x, pos.y, pos.z);
+            chunk.world.GetBlock(pos.x, pos.y, pos.z);
 
             return true;
         }

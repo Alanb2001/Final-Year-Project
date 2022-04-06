@@ -7,9 +7,9 @@ namespace VoxelTerrain
     [RequireComponent(typeof(MeshCollider))]
     public class Chunk : MonoBehaviour
     {
-        public Block[, ,] _blocks = new Block[chunkSize, chunkSize, chunkSize];
-        public static int chunkSize = 16;
-        public bool update = false;
+        public readonly Block[, ,] blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
+        public const int ChunkSize = 16;
+        public bool update;
         public World world;
         public WorldPos pos;
         public bool rendered;
@@ -18,25 +18,24 @@ namespace VoxelTerrain
         private MeshCollider _coll;
         
         // Use this for initialisation.
-        void Start()
+        private void Start()
         {
             _filter = gameObject.GetComponent<MeshFilter>();
             _coll = gameObject.GetComponent<MeshCollider>();
         }
 
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
-            if (update)
-            {
-                update = false;
-                UpdateChunk();
-            }
+            if (!update) return;
+            
+            update = false;
+            UpdateChunk();
         }
 
         public void SetBlocksUnmodified()
         {
-            foreach (Block block in _blocks)
+            foreach (var block in blocks)
             {
                 block.changed = false;
             }
@@ -46,25 +45,21 @@ namespace VoxelTerrain
         {
             if (InRange(x) && InRange(y) && InRange(z))
             {
-                return _blocks[x, y, z];
+                return blocks[x, y, z];
             }
             return world.GetBlock(pos.x + x, pos.y + y, pos.z + z);
         }
 
         public static bool InRange(int index)
         {
-            if (index < 0 || index >= chunkSize)
-            {
-                return false;
-            }
-            return true;
+            return index >= 0 && index < ChunkSize;
         }
 
         public void SetBlock(int x, int y, int z, Block block)
         {
             if (InRange(x) && InRange(y) && InRange(z))
             {
-                _blocks[x, y, z] = block;
+                blocks[x, y, z] = block;
             }
             else
             {
@@ -73,17 +68,17 @@ namespace VoxelTerrain
         }
 
         // Updates the chunk based on its contents
-        void UpdateChunk()
+        private void UpdateChunk()
         {
             rendered = true;
-            MeshData meshData = new MeshData();
-            for (int x = 0; x < chunkSize; x++)
+            var meshData = new MeshData();
+            for (var x = 0; x < ChunkSize; x++)
             {
-                for (int y = 0; y < chunkSize; y++)
+                for (var y = 0; y < ChunkSize; y++)
                 {
-                    for (int z = 0; z < chunkSize; z++)
+                    for (var z = 0; z < ChunkSize; z++)
                     {
-                        meshData = _blocks[x, y, z].Blockdata(this, x, y, z, meshData);
+                        meshData = blocks[x, y, z].BlockData(this, x, y, z, meshData);
                     }
                 }
             }
@@ -92,7 +87,7 @@ namespace VoxelTerrain
         
         // Sends the calculated mesh information
         // to the mesh and collision components
-        void RenderMesh(MeshData meshData)
+        private void RenderMesh(MeshData meshData)
         {
             _filter.mesh.Clear();
             _filter.mesh.vertices = meshData.vertices.ToArray();
@@ -101,9 +96,13 @@ namespace VoxelTerrain
             _filter.mesh.RecalculateNormals();
 
             _coll.sharedMesh = null;
-            Mesh mesh = new Mesh();
-            mesh.vertices = meshData.colVertices.ToArray();
-            mesh.triangles = meshData.colTriangles.ToArray();
+            
+            var mesh = new Mesh
+            {
+                vertices = meshData.colVertices.ToArray(),
+                triangles = meshData.colTriangles.ToArray()
+            };
+            
             mesh.RecalculateNormals();
 
             _coll.sharedMesh = mesh;

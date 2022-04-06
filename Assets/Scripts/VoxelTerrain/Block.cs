@@ -1,4 +1,8 @@
 using System;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace VoxelTerrain
@@ -6,6 +10,41 @@ namespace VoxelTerrain
     [Serializable]
     public class Block
     {
+        [BurstCompile]
+        public struct BuildBlock : IJob
+        {
+            [ReadOnly] public int chunkSize;
+            
+            [WriteOnly] public NativeList<float3> vertices;
+            [WriteOnly] public NativeList<int> triangles;
+            [WriteOnly] public NativeList<float2> uvs;
+            
+            public void Execute()
+            {
+                BuildChunk();
+            }
+
+            private void BuildChunk()
+            {
+                for (int x = 0; x < chunkSize; x++)
+                {
+                    for (int y = 0; y < chunkSize; y++)
+                    {
+                        for (int z = 0; z < chunkSize; z++)
+                        {
+                            if (z < chunkSize - 1 || z == chunkSize - 1)
+                            {
+                                vertices.Add(new float3(x - 0.5f, y + 0.5f, z + 0.5f));
+                                vertices.Add(new float3(x + 0.5f, y + 0.5f, z + 0.5f));
+                                vertices.Add(new float3(x + 0.5f, y + 0.5f, z - 0.5f));
+                                vertices.Add(new float3(x - 0.5f, y + 0.5f, z - 0.5f));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private const float tileSize = 0.25f;
 
         public bool changed = true;
@@ -43,11 +82,6 @@ namespace VoxelTerrain
             west,
             up,
             down
-        };
-        
-        // Base block constructor
-        public Block()
-        {
         }
 
         public virtual bool IsSolid(Direction direction)
@@ -70,7 +104,7 @@ namespace VoxelTerrain
             return false;
         }
         
-        public virtual MeshData Blockdata(Chunk chunk, int x, int y, int z, MeshData meshData)
+        public virtual MeshData BlockData(Chunk chunk, int x, int y, int z, MeshData meshData)
         {
             meshData.useRenderDataForCol = true;
             if (!chunk.GetBlock(x, y + 1, z).IsSolid(Direction.down))

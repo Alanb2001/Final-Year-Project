@@ -5,18 +5,12 @@ namespace VoxelTerrain
     [Serializable]
     public class BlockAir : Block
     {
-        public BlockAir()
-            : base()
-        {
-            
-        }
-
-        public override MeshData Blockdata(Chunk chunk, int x, int y, int z, MeshData meshData)
+        public override MeshData BlockData(Chunk chunk, int x, int y, int z, MeshData meshData)
         {
             return meshData;
         }
 
-        public override bool IsSolid(Block.Direction direction)
+        public override bool IsSolid(Direction direction)
         {
             return false;
         }
