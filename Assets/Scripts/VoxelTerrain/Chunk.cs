@@ -1,3 +1,5 @@
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace VoxelTerrain
@@ -7,16 +9,16 @@ namespace VoxelTerrain
     [RequireComponent(typeof(MeshCollider))]
     public class Chunk : MonoBehaviour
     {
-        public readonly Block[, ,] blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
+        public readonly Block[,,] blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
         public const int ChunkSize = 16;
         public bool update;
         public World world;
         public WorldPos pos;
         public bool rendered;
-        
+
         private MeshFilter _filter;
         private MeshCollider _coll;
-        
+
         // Use this for initialisation.
         private void Start()
         {
@@ -28,7 +30,7 @@ namespace VoxelTerrain
         private void Update()
         {
             if (!update) return;
-            
+
             update = false;
             UpdateChunk();
         }
@@ -40,13 +42,14 @@ namespace VoxelTerrain
                 block.changed = false;
             }
         }
-        
+
         public Block GetBlock(int x, int y, int z)
         {
             if (InRange(x) && InRange(y) && InRange(z))
             {
                 return blocks[x, y, z];
             }
+
             return world.GetBlock(pos.x + x, pos.y + y, pos.z + z);
         }
 
@@ -82,9 +85,10 @@ namespace VoxelTerrain
                     }
                 }
             }
+
             RenderMesh(meshData);
         }
-        
+
         // Sends the calculated mesh information
         // to the mesh and collision components
         private void RenderMesh(MeshData meshData)
@@ -96,13 +100,13 @@ namespace VoxelTerrain
             _filter.mesh.RecalculateNormals();
 
             _coll.sharedMesh = null;
-            
+
             var mesh = new Mesh
             {
                 vertices = meshData.colVertices.ToArray(),
                 triangles = meshData.colTriangles.ToArray()
             };
-            
+
             mesh.RecalculateNormals();
 
             _coll.sharedMesh = mesh;
