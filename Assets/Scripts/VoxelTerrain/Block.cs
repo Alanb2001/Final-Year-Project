@@ -15,16 +15,16 @@ namespace VoxelTerrain
     
     public struct BlockData
     {
-        [ReadOnly] public static NativeArray<int3> Vertices = new NativeArray<int3>(8, Allocator.Persistent)
+        [ReadOnly] public static NativeArray<float3> Vertices = new NativeArray<float3>(8, Allocator.Persistent)
         {
-            [0] = new int3(1, 1, 1),
-            [1] = new int3(0, 1, 1),
-            [2] = new int3(0, 0, 1),
-            [3] = new int3(1, 0, 1),
-            [4] = new int3(0, 1, 0),
-            [5] = new int3(1, 1, 0),
-            [6] = new int3(1, 0, 0),
-            [7] = new int3(0, 0, 0)
+            [0] = new float3(1, 1, 1),
+            [1] = new float3(0, 1, 1),
+            [2] = new float3(0, 0, 1),
+            [3] = new float3(1, 0, 1),
+            [4] = new float3(0, 1, 0),
+            [5] = new float3(1, 1, 0),
+            [6] = new float3(1, 0, 0),
+            [7] = new float3(0, 0, 0)
         };
         
         [ReadOnly] public static NativeArray<int> Triangles = new NativeArray<int>(24, Allocator.Persistent)
@@ -39,17 +39,19 @@ namespace VoxelTerrain
 
         public void Dispose()
         {
-            Triangles.Dispose();
             Vertices.Dispose();
+            Triangles.Dispose();
         }
     }
     
     public static class BlockExtensions
     {
-        public static NativeArray<int3> GetFaceVertices(Block.Direction direction, int scale, int3 pos)
+        private const float TileSize = 0.25f;
+        
+        public static NativeArray<float3> GetFaceVertices(Block.Direction direction, int scale, int3 pos)
         {
-            var faceVertices = new NativeArray<int3>(4, Allocator.Temp);
-    
+            var faceVertices = new NativeArray<float3>(4, Allocator.Temp);
+
             for (int i = 0; i < 4; i++)
             {
                 var index = BlockData.Triangles[(int)direction * 4 + i];
@@ -63,7 +65,7 @@ namespace VoxelTerrain
     
         public static bool IsEmpty(this Blocks block) => block == Blocks.Air;
     
-        public static int3 GetPositionInDirection(Block.Direction  direction, int x, int y, int z)
+        public static int3 GetPositionInDirection(Block.Direction direction, int x, int y, int z)
         {
             switch (direction)
             {
@@ -83,6 +85,34 @@ namespace VoxelTerrain
                     throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
             }
         }
+        
+        public static NativeArray<float2> FaceUVs(Block.Direction direction)
+        {
+            var uVs = new NativeArray<float2>(4, Allocator.Temp);
+            var tilePos = TexturePosition(direction);
+            uVs[0] = new float2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y);
+            uVs[1] = new float2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y + TileSize);
+            uVs[2] = new float2(TileSize * tilePos.x, TileSize * tilePos.y + TileSize);
+            uVs[3] = new float2(TileSize * tilePos.x, TileSize * tilePos.y);
+            return uVs;
+        }
+        
+        public struct Tile
+        {
+            public int x;
+            public int y;
+        }
+
+        public static Tile TexturePosition(Block.Direction direction)
+        {
+            var tile = new Tile
+            {
+                x = 0,
+                y = 0
+            };
+
+            return tile;
+        }
     }
     
     [Serializable]
@@ -92,14 +122,14 @@ namespace VoxelTerrain
 
         public bool changed = true;
 
-        public Vector2[] FaceUVs(Direction direction)
+        public NativeArray<float2> FaceUVs(Direction direction)
         {
-            var uVs = new Vector2[4];
+            var uVs = new NativeArray<float2>(4, Allocator.Temp);
             var tilePos = TexturePosition(direction);
-            uVs[0] = new Vector2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y);
-            uVs[1] = new Vector2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y + TileSize);
-            uVs[2] = new Vector2(TileSize * tilePos.x, TileSize * tilePos.y + TileSize);
-            uVs[3] = new Vector2(TileSize * tilePos.x, TileSize * tilePos.y);
+            uVs[0] = new float2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y);
+            uVs[1] = new float2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y + TileSize);
+            uVs[2] = new float2(TileSize * tilePos.x, TileSize * tilePos.y + TileSize);
+            uVs[3] = new float2(TileSize * tilePos.x, TileSize * tilePos.y);
             return uVs;
         }
 

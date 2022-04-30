@@ -12,13 +12,13 @@ namespace VoxelTerrain
     {
         public struct MeshData
         {
-            public NativeList<int3> Vertices { get; set; }
+            public NativeList<float3> Vertices { get; set; }
             public NativeList<int> Triangles { get; set; }
         }
         
         public struct BlockData
         {
-            public NativeArray<int3> Vertices { get; set; }
+            public NativeArray<float3> Vertices { get; set; }
             public NativeArray<int> Triangles { get; set; }
         }
         
@@ -34,24 +34,44 @@ namespace VoxelTerrain
         [ReadOnly] public BlockData blockData;
     
         private int vCount;
-        
+
         public void Execute()
         {
-            for (int x = 0; x < Chunk.ChunkSize; x++)
+            //var mesh = new VoxelTerrain.MeshData();
+            //var chunk = new Chunk();
+            
+            //Chunk.rendered = true;
+            //var meshData = new MeshData();
+            //for (var x = 0; x < Chunk.ChunkSize; x++)
+            //{
+            //    for (var y = 0; y < Chunk.ChunkSize; y++)
+            //    {
+            //       for (var z = 0; z < Chunk.ChunkSize; z++)
+            //       {
+            //            meshData = Chunk.blocks[x, y, z].BlockData(this, x, y, z, meshData);
+            //       }
+            //    }
+            //}
+//
+            //RenderMesh(meshData);
+            
+            for (var x = 0; x < Chunk.ChunkSize; x++)
             {
-                for (int z = 0; z < Chunk.ChunkSize; z++)
+                for (var z = 0; z < Chunk.ChunkSize; z++)
                 {
-                    for (int y = 0; y < Chunk.ChunkSize; y++)
+                    for (var y = 0; y < Chunk.ChunkSize; y++)
                     {
                         if (chunkData.Blocks[BlockExtensions.GetBlockIndex(new int3(x, y, z))].IsEmpty())
                         {
                             continue;
                         }
-    
-                        for (int i = 0; i < 6; i++)
+            
+                        //BlockExtensions.BlockInfo(chunk, x, y, z, mesh);
+            
+                        for (var i = 0; i < 6; i++)
                         {
                             var direction = (Block.Direction)i;
-    
+            
                             if (Check(BlockExtensions.GetPositionInDirection(direction, x, y, z)))
                             {
                                 CreateFace(direction, new int3(x, y, z));
@@ -64,11 +84,11 @@ namespace VoxelTerrain
         
         private void CreateFace(Block.Direction direction, int3 pos)
         {
-            var _vertices = GetFaceVertices(direction, 1, pos);
+            var vertices = GetFaceVertices(direction, 1, pos);
                 
-            meshData.Vertices.AddRange(_vertices);
+            meshData.Vertices.AddRange(vertices);
     
-            _vertices.Dispose();
+            vertices.Dispose();
     
             vCount += 4;
     
@@ -95,9 +115,9 @@ namespace VoxelTerrain
             return chunkData.Blocks[BlockExtensions.GetBlockIndex(position)].IsEmpty();
         }
         
-        public NativeArray<int3> GetFaceVertices(Block.Direction direction, int scale, int3 pos)
+        public NativeArray<float3> GetFaceVertices(Block.Direction direction, int scale, int3 pos)
         {
-            var faceVertices = new NativeArray<int3>(4, Allocator.Temp);
+            var faceVertices = new NativeArray<float3>(4, Allocator.Temp);
     
             for (int i = 0; i < 4; i++)
             {
@@ -159,7 +179,7 @@ namespace VoxelTerrain
              
              var meshData = new ChunkJob.MeshData
              {
-                 Vertices = new NativeList<int3>(Allocator.TempJob),
+                 Vertices = new NativeList<float3>(Allocator.TempJob),
                  Triangles = new NativeList<int>(Allocator.TempJob)
              };
             
@@ -184,7 +204,7 @@ namespace VoxelTerrain
                  vertices = meshData.Vertices.ToArray().Select(vertex => new Vector3(vertex.x, vertex.y, vertex.z)).ToArray(),
                  triangles = meshData.Triangles.ToArray()
              };
-            
+
              meshData.Vertices.Dispose();
              meshData.Triangles.Dispose();
              blocks.Dispose();
@@ -264,16 +284,17 @@ namespace VoxelTerrain
         private void RenderMesh(MeshData meshData)
         {
             _filter.mesh.Clear();
-            _filter.mesh.vertices = meshData.vertices.ToArray();
+            _filter.mesh.vertices = meshData.vertices.ToArray()
+                .Select(vertex => new Vector3(vertex.x, vertex.y, vertex.z)).ToArray();
             _filter.mesh.triangles = meshData.triangles.ToArray();
-            _filter.mesh.uv = meshData.uv.ToArray();
+            _filter.mesh.uv = meshData.uv.ToArray().Select(vertex => new Vector2(vertex.x, vertex.y)).ToArray();
             _filter.mesh.RecalculateNormals();
 
             _coll.sharedMesh = null;
 
             var mesh = new Mesh
             {
-                vertices = meshData.colVertices.ToArray(),
+                vertices = meshData.colVertices.ToArray().Select(vertex => new Vector3(vertex.x, vertex.y, vertex.z)).ToArray(),
                 triangles = meshData.colTriangles.ToArray()
             };
 
