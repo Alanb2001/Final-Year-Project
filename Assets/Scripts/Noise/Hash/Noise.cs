@@ -13,7 +13,7 @@ namespace Noise.Hash
         {
             float4 GetNoise4(float4x3 positions, SmallXXHash4 hash, int frequency);
         }
-        
+
         [BurstCompile(FloatPrecision.Standard, FloatMode.Fast, CompileSynchronously = true)]
         public struct Job<N> : IJobFor where N : struct, INoise
         {

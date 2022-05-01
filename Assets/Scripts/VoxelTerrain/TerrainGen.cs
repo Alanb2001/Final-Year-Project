@@ -1,9 +1,13 @@
 using System;
+using Noise.Hash;
+using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace VoxelTerrain
 {
-    public class TerrainGen : MonoBehaviour
+    public class TerrainGen : NoiseVisualisation
     {
         [Serializable]
         public struct TerrainSettings
@@ -24,7 +28,7 @@ namespace VoxelTerrain
         }
 
         [SerializeField] private TerrainSettings settings = TerrainSettings.Default;
-
+        
         public Chunk ChunkGen(Chunk chunk)
         {
             for (var x = chunk.pos.x - 3; x < chunk.pos.x + Chunk.ChunkSize + 3; x++)
@@ -42,7 +46,7 @@ namespace VoxelTerrain
         }
 
         private Chunk ChunkColumnGen(Chunk chunk, int x, int y, int z)
-        { 
+        {
             // Get a value to base cave generation on
             var caveChance = GetNoise(x, y, z, settings.caveFrequency, settings.caveMax);
             SetBlock(x, y, z, settings.caveSize < caveChance ? new Block() : new BlockAir(), chunk);
@@ -66,6 +70,7 @@ namespace VoxelTerrain
 
         private static int GetNoise(int x, int y, int z, float scale, int max)
         {
+            
             return Mathf.FloorToInt((Noise.Generate(x * scale, y * scale, z * scale) + 1f) * (max / 2f));
         }
     }

@@ -130,6 +130,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3937b3cd45b8edf4ebf2f6f79cb506ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  instanceMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  material: {fileID: 2100000, guid: accc610733705504dbc532040fac7e9d, type: 2}
+  resolution: 16
+  displacement: 0.1
+  shape: 0
+  instanceScale: 2
+  noiseSettings:
+    seed: 0
+    frequency: 4
+    octaves: 1
+    lacunarity: 2
+    persistence: 0.5
+  domain:
+    translation:
+      x: 0
+      y: 0
+      z: 0
+    rotation:
+      x: 0
+      y: 0
+      z: 0
+    scale:
+      x: 8
+      y: 8
+      z: 8
+  dimensions: 3
+  type: 0
+  tiling: 0
   settings:
     caveFrequency: 0.025
     caveSize: 20

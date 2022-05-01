@@ -156,40 +156,6 @@ namespace Noise.Hash
 
         private ComputeBuffer _noiseBuffer;
 
-        private static Shapes.ScheduleDelegate[] shapeJobs =
-        {
-            Shapes.Job<Shapes.Plane>.ScheduleParallel, Shapes.Job<Shapes.Sphere>.ScheduleParallel,
-            Shapes.Job<Shapes.Torus>.ScheduleParallel,
-        };
-
-        struct HashJob : IJobFor
-        {
-            [ReadOnly] public NativeArray<float3x4> positions;
-
-            [WriteOnly] public NativeArray<uint4> hashes;
-
-            public SmallXXHash4 hash;
-
-            public float3x4 domainTRS;
-
-            float4x3 TransfromPositions(float3x4 trs, float4x3 p) => float4x3(
-                trs.c0.x * p.c0 + trs.c1.x * p.c1 + trs.c2.x * p.c2 + trs.c3.x,
-                trs.c0.y * p.c0 + trs.c1.y * p.c1 + trs.c2.y * p.c2 + trs.c3.y,
-                trs.c0.z * p.c0 + trs.c1.z * p.c1 + trs.c2.z * p.c2 + trs.c3.z
-            );
-
-            public void Execute(int i)
-            {
-                float4x3 p = TransfromPositions(domainTRS, transpose(positions[i]));
-
-                int4 u = (int4)floor(p.c0);
-                int4 v = (int4)floor(p.c1);
-                int4 w = (int4)floor(p.c2);
-
-                hashes[i] = hash.Eat(u).Eat(v).Eat(w);
-            }
-        }
-
         protected override void EnableVisualisation(int dataLength, MaterialPropertyBlock propertyBlock)
         {
             _noise = new NativeArray<float4>(dataLength, Allocator.Persistent);
