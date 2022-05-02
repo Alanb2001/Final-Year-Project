@@ -1,7 +1,5 @@
 using System;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -43,7 +41,7 @@ namespace VoxelTerrain
    //    public static NativeArray<float3> GetFaceVertices(Block.Direction direction, int scale, int3 pos)
    //    {
    //        var faceVertices = new NativeArray<float3>(4, Allocator.Temp);
-
+//
    //        for (int i = 0; i < 4; i++)
    //        {
    //            var index = BlockData.Triangles[(int)direction * 4 + i];

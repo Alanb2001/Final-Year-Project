@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
@@ -8,6 +7,7 @@ using UnityEngine;
 
 namespace VoxelTerrain
 {
+    //[BurstCompile]
     //public struct ChunkJob : IJob
     //{
     //    public struct MeshData
@@ -34,10 +34,10 @@ namespace VoxelTerrain
     //    [ReadOnly] public BlockData blockData;
     //
     //    private int vCount;
-//
+    //
     //    public void Execute()
     //    {
-//
+    //
     //        for (var x = 0; x < Chunk.ChunkSize; x++)
     //        {
     //            for (var z = 0; z < Chunk.ChunkSize; z++)
@@ -48,9 +48,7 @@ namespace VoxelTerrain
     //                    {
     //                        continue;
     //                    }
-    //        
-    //                    //BlockExtensions.BlockInfo(chunk, x, y, z, mesh);
-    //        
+//
     //                    for (var i = 0; i < 6; i++)
     //                    {
     //                        var direction = (Block.Direction)i;
@@ -133,70 +131,70 @@ namespace VoxelTerrain
             _filter = gameObject.GetComponent<MeshFilter>();
             _coll = gameObject.GetComponent<MeshCollider>();
             
-            // var position = transform.position;
-            //
-            // var blocks = new NativeArray<Blocks>(4096, Allocator.TempJob);
-            //
-            // for (int x = 0; x < ChunkSize; x++)
-            // {
-            //     for (int y = 0; y < ChunkSize; y++)
-            //     {
-            //         for (int z = 0; z < ChunkSize; z++)
-            //         {
-            //             var noise = Mathf.FloorToInt(
-            //                 Mathf.PerlinNoise((position.x + x) * 0.15f, (position.z + z) * 0.15f) *
-            //                 ChunkSize);
-            //                 
-            //             for (int i = 0; i < noise; i++)
-            //             {
-            //                 blocks[BlockExtensions.GetBlockIndex(new int3(x, i, z))] = Blocks.Stone;
-            //             }
-            //
-            //             for (int i = noise; i < ChunkSize; i++)
-            //             {
-            //                 blocks[BlockExtensions.GetBlockIndex(new int3(x, i, z))] = Blocks.Air;
-            //             }
-            //         }
-            //     }
-            // }
-            // 
-            // var meshData = new ChunkJob.MeshData
-            // {
-            //     Vertices = new NativeList<float3>(Allocator.TempJob),
-            //     Triangles = new NativeList<int>(Allocator.TempJob)
-            // };
-            //
-            // var jobHandle = new ChunkJob
-            // {
-            //     meshData = meshData,
-            //     chunkData = new ChunkJob.ChunkData
-            //     {
-            //         Blocks = blocks
-            //     },
-            //     blockData = new ChunkJob.BlockData
-            //     {
-            //         Vertices = BlockData.Vertices,
-            //         Triangles = BlockData.Triangles
-            //     }
-            // }.Schedule();
-            // 
-            // jobHandle.Complete();
-            // 
-            // var mesh = new Mesh
-            // {
-            //     vertices = meshData.Vertices.ToArray().Select(vertex => new Vector3(vertex.x, vertex.y, vertex.z)).ToArray(),
-            //     triangles = meshData.Triangles.ToArray()
-            // };
+           // var position = transform.position;
+           //
+           // var blocks = new NativeArray<Blocks>(4096, Allocator.TempJob);
+           //
+           // for (int x = 0; x < ChunkSize; x++)
+           // {
+           //     for (int y = 0; y < ChunkSize; y++)
+           //     {
+           //         for (int z = 0; z < ChunkSize; z++)
+           //         {
+           //             var noise = Mathf.FloorToInt(
+           //                 Mathf.PerlinNoise((position.x + x) * 0.15f, (position.z + z) * 0.15f) *
+           //                 ChunkSize);
+           //                 
+           //             for (int i = 0; i < noise; i++)
+           //             {
+           //                 blocks[BlockExtensions.GetBlockIndex(new int3(x, i, z))] = Blocks.Stone;
+           //             }
+           //
+           //             for (int i = noise; i < ChunkSize; i++)
+           //             {
+           //                 blocks[BlockExtensions.GetBlockIndex(new int3(x, i, z))] = Blocks.Air;
+           //             }
+           //         }
+           //     }
+           // }
+           // 
+           // var meshData = new ChunkJob.MeshData
+           // {
+           //     Vertices = new NativeList<float3>(Allocator.TempJob),
+           //     Triangles = new NativeList<int>(Allocator.TempJob)
+           // };
+           //
+           // var jobHandle = new ChunkJob
+           // {
+           //     meshData = meshData,
+           //     chunkData = new ChunkJob.ChunkData
+           //     {
+           //         Blocks = blocks
+           //     },
+           //     blockData = new ChunkJob.BlockData
+           //     {
+           //         Vertices = BlockData.Vertices,
+           //         Triangles = BlockData.Triangles
+           //     }
+           // }.Schedule();
+           // 
+           // jobHandle.Complete();
+           // 
+           // var mesh = new Mesh
+           // {
+           //     vertices = meshData.Vertices.ToArray().Select(vertex => new Vector3(vertex.x, vertex.y, vertex.z)).ToArray(),
+           //     triangles = meshData.Triangles.ToArray()
+           // };
 //
-            // meshData.Vertices.Dispose();
-            // meshData.Triangles.Dispose();
-            // blocks.Dispose();
-            // 
-            // mesh.RecalculateNormals();
-            // mesh.RecalculateBounds();
-            // mesh.RecalculateTangents();
-            // 
-            // _filter.mesh = mesh;
+           // meshData.Vertices.Dispose();
+           // meshData.Triangles.Dispose();
+           // blocks.Dispose();
+           // 
+           // mesh.RecalculateNormals();
+           // mesh.RecalculateBounds();
+           // mesh.RecalculateTangents();
+           // 
+           // _filter.mesh = mesh;
         }
 
         // Update is called once per frame

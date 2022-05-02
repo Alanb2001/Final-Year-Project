@@ -7,104 +7,106 @@ using Unity.Mathematics;
 using UnityEngine;
 
 namespace VoxelTerrain
-{
-   //public struct CubeJob : IJob
-   //{
-   //    public struct MeshData
-   //    {
-   //        public NativeList<float3> Vertices { get; set; }
-   //        public NativeList<int> Triangles { get; set; }
-   //    }
-   //
-   //    public int3 position { get; set; }
-   //    
-   //    public MeshData meshData { get; set; }
-   //    
-   //    public void Execute()
-   //    {
-   //        for (int i = 0; i < 6; i++)
-   //        {
-   //            CreateFace((Block.Direction)i, position);
-   //        }
-   //    }
-   //    
-   //    private void CreateFace(Block.Direction direction, int3 pos)
-   //    {
-   //        var vertices = BlockExtensions.GetFaceVertices(direction, 1, pos);
-   //            
-   //        meshData.Vertices.AddRange(vertices);
-   //
-   //        vertices.Dispose();
-   //        
-   //        var vCount = meshData.Vertices.Length - 4;
-   //
-   //        meshData.Triangles.Add(vCount);
-   //        meshData.Triangles.Add(vCount+ 1);
-   //        meshData.Triangles.Add(vCount + 2);
-   //        meshData.Triangles.Add(vCount);
-   //        meshData.Triangles.Add(vCount + 2);
-   //        meshData.Triangles.Add(vCount + 3);
-   //    }
-   //}
-   //public class Cube : MonoBehaviour
-   //{
-   //    private MeshFilter _meshFilter;
-   //    private JobHandle _jobHandle;
-   //    private CubeJob.MeshData _meshData;
+{ 
+  // [BurstCompile]
+  //public struct CubeJob : IJob
+  //{
+  //    public struct MeshData
+  //    {
+  //        public NativeList<float3> Vertices { get; set; }
+  //        public NativeList<int> Triangles { get; set; }
+  //    }
+  //
+  //    public int3 position { get; set; }
+  //    
+  //    public MeshData meshData { get; set; }
+  //    
+  //    public void Execute()
+  //    {
+  //        for (int i = 0; i < 6; i++)
+  //        {
+  //            CreateFace((Block.Direction)i, position);
+  //        }
+  //    }
+  //    
+  //    private void CreateFace(Block.Direction direction, int3 pos)
+  //    {
+  //        var vertices = BlockExtensions.GetFaceVertices(direction, 1, pos);
+  //            
+  //        meshData.Vertices.AddRange(vertices);
+  //
+  //        vertices.Dispose();
+  //        
+  //        var vCount = meshData.Vertices.Length - 4;
+  //
+  //        meshData.Triangles.Add(vCount);
+  //        meshData.Triangles.Add(vCount+ 1);
+  //        meshData.Triangles.Add(vCount + 2);
+  //        meshData.Triangles.Add(vCount);
+  //        meshData.Triangles.Add(vCount + 2);
+  //        meshData.Triangles.Add(vCount + 3);
+  //    }
+  //}
+  //
+  //public class Cube : MonoBehaviour
+  //{
+  //    private MeshFilter _meshFilter;
+  //    private JobHandle _jobHandle;
+  //    private CubeJob.MeshData _meshData;
 
-   //    private bool _jobCompleted;
-   //    
-   //    private void Awake()
-   //    {
-   //        _meshFilter = GetComponent<MeshFilter>();
-   //    }
-   //
-   //    private void Start()
-   //    {
-   //        var meshData = new CubeJob.MeshData
-   //        {
-   //            Vertices = new NativeList<float3>(Allocator.TempJob),
-   //            Triangles = new NativeList<int>(Allocator.TempJob)
-   //        };
-   //
-   //        var cubeJob = new CubeJob()
-   //        {
-   //            position = int3.zero,
-   //            meshData = meshData
-   //        };
-   //
-   //        var jobHandle = cubeJob.Schedule();
-   //    }
-   //
-   //    private void Update()
-   //    {
-   //        if (!_jobCompleted && _jobHandle.IsCompleted)
-   //        {
-   //            _jobCompleted = true;
-   //            OnComplete();
-   //        }
-   //    }
+  //    private bool _jobCompleted;
+  //    
+  //    private void Awake()
+  //    {
+  //        _meshFilter = GetComponent<MeshFilter>();
+  //    }
+  //
+  //    private void Start()
+  //    {
+  //        var meshData = new CubeJob.MeshData
+  //        {
+  //            Vertices = new NativeList<float3>(Allocator.TempJob),
+  //            Triangles = new NativeList<int>(Allocator.TempJob)
+  //        };
+  //
+  //        var cubeJob = new CubeJob()
+  //        {
+  //            position = int3.zero,
+  //            meshData = meshData
+  //        };
+  //
+  //        var jobHandle = cubeJob.Schedule();
+  //    }
+  //
+  //    private void Update()
+  //    {
+  //        if (!_jobCompleted && _jobHandle.IsCompleted)
+  //        {
+  //            _jobCompleted = true;
+  //            OnComplete();
+  //        }
+  //    }
 
-   //    private void OnComplete()
-   //    {
-   //        _jobHandle.Complete();
-   //        
-   //        var mesh = new Mesh()
-   //        {
-   //            vertices = _meshData.Vertices.ToArray().Select(vertex => new Vector3(vertex.x, vertex.y, vertex.z)).ToArray(),
-   //            triangles = _meshData.Triangles.ToArray()
-   //        };
-   //
-   //        _meshData.Vertices.Dispose();
-   //        _meshData.Triangles.Dispose();
+  //    private void OnComplete()
+  //    {
+  //        _jobHandle.Complete();
+  //        
+  //        var mesh = new Mesh()
+  //        {
+  //            vertices = _meshData.Vertices.ToArray().Select(vertex => new Vector3(vertex.x, vertex.y, vertex.z)).ToArray(),
+  //            triangles = _meshData.Triangles.ToArray()
+  //        };
+  //
+  //        _meshData.Vertices.Dispose();
+  //        _meshData.Triangles.Dispose();
 
-   //        mesh.RecalculateNormals();
-   //        mesh.RecalculateBounds();
-   //        mesh.RecalculateTangents();
-   //        
-   //        _meshFilter.mesh = mesh;
-   //    }
-   //}
+  //        mesh.RecalculateNormals();
+  //        mesh.RecalculateBounds();
+  //        mesh.RecalculateTangents();
+  //        
+  //        _meshFilter.mesh = mesh;
+  //    }
+  //}
     public class MeshData
     {
         public readonly List<Vector3> vertices = new List<Vector3>();
